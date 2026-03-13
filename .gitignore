@@ -1,18 +1,14 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.Python
-venv/
-env/
-*.egg-info/
+# AI assistant instruction files — private, not for commit
+CLAUDE.md
 
-# Environment variables
+# Environment and secrets
 .env
 .env.local
-
-# Node modules
-node_modules/
+*.key
+*secret*
+*credential*
+*password*
+.mcp.json
 
 # OS files
 .DS_Store
@@ -21,11 +17,12 @@ desktop.ini
 
 # Editor files
 .vscode/
-.idea/
 *.swp
 *.swo
 
-# Temporary files
+# Temp/logs
 *.tmp
-*.temp
 *.log
+.cache/
+node_modules/
+
