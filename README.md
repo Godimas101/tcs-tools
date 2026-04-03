@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=rect&height=170&color=0:03120F,45:10B981,100:22C55E&text=TCS%20Tools&fontColor=ffffff&fontAlignY=35&fontSize=32&desc=Small%20helpers%20and%20utility%20tools%20for%20The%20Canadian%20Space&descAlignY=57&descSize=18" />
+  <img src="https://capsule-render.vercel.app/api?type=rect&height=170&color=0:03120F,45:10B981,100:22C55E&text=%20TCS%20Tools%20&fontColor=ffffff&fontAlignY=35&fontSize=32&textBg=true&desc=Small%20helpers%20and%20utility%20tools%20for%20The%20Canadian%20Space&descAlignY=57&descSize=18" />
 </p>
 
 > **"Small tools, fewer headaches, better automation."**
