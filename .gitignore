@@ -1,5 +1,6 @@
 # AI assistant instruction files — private, not for commit
 CLAUDE.md
+NOTES.md
 
 # Environment and secrets
 .env
@@ -25,4 +26,3 @@ desktop.ini
 *.log
 .cache/
 node_modules/
-
