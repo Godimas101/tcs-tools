@@ -1,0 +1,21 @@
+name: On issue close → append CHANGELOG
+
+on:
+  issues:
+    types: [closed]
+
+# The reusable workflow needs contents: write to commit + push CHANGELOG.
+# The-Canadian-Space org sets default_workflow_permissions=read, so we
+# override at the caller.
+permissions:
+  contents: write
+
+jobs:
+  call-append:
+    uses: The-Canadian-Space/.github/.github/workflows/append-changelog.yml@main
+    secrets: inherit
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      issue_title: ${{ github.event.issue.title }}
+      closed_by: ${{ github.event.sender.login }}
+      state_reason: ${{ github.event.issue.state_reason }}
