@@ -122,6 +122,10 @@ SITE_CONFIG = {
     "nasa.gov": {
         "source": "NASA",
         "selector": "div.entry-content, div.single-blog-content",
+        "strict_scope": True,   # 2026-08-06 audit (DB run 3279): sidebar "Recent Posts"
+        "keep_overlays": True,  # thumbnails from OTHER articles leaked into the current
+                                # article's images[] list, causing cross-article image mixup
+                                # in published blogs. Same fix pattern as science.nasa.gov.
     },
     "planetary.org": {
         "source": "The Planetary Society",
@@ -419,6 +423,30 @@ def _clean_alt(raw) -> str:
         alt,
     ):
         return ""
+    # NAV_CHROME_ALT_V1 (2026-08-06 audit, DB run 3279): NASA + ESA `<img>`
+    # elements with no `alt` attribute cause Crawl4AI's extractor to inherit
+    # surrounding page text as a fallback alt — which on those sites is
+    # site-wide navigation menus, download-button labels, or view/like
+    # counters. Truncating at 200 chars doesn't help: the first 200 chars
+    # of a nav menu is still nav menu ("Explore News & Events News & Events
+    # News Releases..."). Drop when we see the tells.
+    #
+    # Signals we key on (all conservative — must be obvious chrome, not
+    # normal photo captions):
+    #   - the same 3-word phrase repeated back-to-back ("News & Events
+    #     News & Events" — nav category duplication)
+    #   - "HI-RES JPG (" / "HI-RES TIF (" — ESA video/image page download
+    #     button labels
+    #   - digit-space-"views" or digit-space-"likes" — page metadata
+    if re.search(r"HI-RES\s+(?:JPG|TIF|PNG)\s*\(", alt, re.IGNORECASE):
+        return ""
+    if re.search(r"\b\d+\s+(?:views?|likes?)\b", alt, re.IGNORECASE):
+        return ""
+    # Duplicated 3+word phrase back-to-back (with optional single space
+    # between). NASA nav: "News & Events News & Events".
+    if re.search(r"\b((?:\w+\W+){2,4}\w+)\s*\1\b", alt):
+        return ""
+
     # Cap alt length -- alt strings longer than 200 chars are almost
     # always content bleed (Crawl4AI's extraction inheriting the page
     # body into the alt attribute). Truncate at a word boundary with
@@ -799,6 +827,40 @@ def _filter_cruft_images(url: str, images: list) -> list:
                 continue
             if alt.startswith("by "):
                 continue
+            # apogee.spacenews.com hosts SpaceNews's ad + design assets
+            # (empty-alt design-system images, programmatic ad creative).
+            # Not article content. Audited 2026-08-06 (run 3279 article-1
+            # picked one of these as its hero, ahead of the actual Electron
+            # launch photo).
+            if "apogee.spacenews.com" in u:
+                continue
+            filtered.append(img)
+        return filtered
+    if "nasa.gov" in host and "science.nasa.gov" not in host:
+        # NASA_BLOG_SIDEBAR_V1 (2026-08-06 audit, hc-2026-08-06 verify run):
+        # NASA blog pages ship a "Recent Posts" sidebar with thumbnails from
+        # OTHER articles. strict_scope + keep_overlays (added the same day)
+        # fixed the ordering — the article's own OG is now reliably first —
+        # but didn't eliminate the bleed. Crawl4AI's media.images collector
+        # scans the full rendered page, not just the selector's subtree.
+        #
+        # The article's own OG thumbnail and the sidebar thumbnails share
+        # the exact same filename shape:
+        #   /wp-content/uploads/YYYY/MM/blog-<slug>-preview.jpg
+        # so we can't URL-filter by pattern alone. Heuristic: keep at most
+        # ONE such thumbnail per article — the first one, which after
+        # strict_scope is reliably the article's own. Drop the rest.
+        seen_blog_preview = False
+        filtered = []
+        for img in images:
+            if isinstance(img, dict):
+                u = img.get("url", "") or ""
+            else:
+                u = str(img)
+            if re.search(r"/blog-[^/]+-preview\.jpg", u):
+                if seen_blog_preview:
+                    continue
+                seen_blog_preview = True
             filtered.append(img)
         return filtered
     if "nasaspaceflight.com" in host:
