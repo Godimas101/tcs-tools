@@ -49,7 +49,18 @@ Two output modes:
 - **httpx**, **requests**, **beautifulsoup4** — supporting HTTP + parsing libs
 
 The `crawl4ai-env` venv on the VPS is Python 3.12 with the packages above.
-Nothing else. No trafilatura, no Jina Reader, no Browserless, no ScrapingBee.
+Nothing else in this venv — no trafilatura, no Jina Reader.
+
+Separately, some n8n workflows call **paid external services** for pages where
+Crawl4AI's self-hosted browser gets caught by anti-bot fingerprinting:
+- **[Browserless.io](https://www.browserless.io/)** — SpaceX Report V3 workflow
+  hits `chrome.browserless.io/content` for `spacex.com/updates` and
+  `starlink.com/updates` (SPA-rendered listings)
+- **[ScraperAPI](https://www.scraperapi.com/)** — Bright Blue Origin V3
+  workflow hits `api.scraperapi.com` for `blueorigin.com/news`
+
+Those calls happen from n8n HTTP Request nodes, not from `article_scraper.py`.
+The scraper itself has no external-service dependencies.
 
 ## Per-site config
 
