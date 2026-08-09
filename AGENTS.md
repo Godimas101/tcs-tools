@@ -21,8 +21,8 @@ Ground truth for scraper behavior is here, not in n8n Code nodes. Code nodes cal
 
 ## Common failure modes
 
-- **Cloudflare block on Space Daily article pages** — use WordPress API or RSS instead of scraping.
-- **Dynamic-JS content** — route through Browserless (`browserless.io`) not plain HTTP.
+- **Cloudflare cookie-wall / SPA JS** — first choice: CRW self-hosted at `http://127.0.0.1:3010/v1/scrape` (deployed 2026-08-08, see `tcs-docs/docs/scrapers.md`). Handles Space Daily, SpaceX, Starlink cleanly. Historically Browserless was used for these — the migration to CRW is in [tcs-workflows#38](https://github.com/The-Canadian-Space/tcs-workflows/issues/38).
+- **Cloudflare Turnstile / Vercel Security Checkpoint** — no self-hosted tool bypasses these in 2026. Rocket Lab (Cloudflare UAM) → ScrapingBee ([#37](https://github.com/The-Canadian-Space/tcs-workflows/issues/37)); Blue Origin (Vercel) → ScraperAPI (staying put).
 - **Paywall detection** — heuristic-based; false positives happen. Log them; don't crash.
 
 ## How to verify (before flagging In QA or closing)
