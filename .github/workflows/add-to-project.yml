@@ -1,0 +1,29 @@
+# Auto-add every newly opened issue + PR in this repo to the
+# TCS Timeline project board (org/The-Canadian-Space/projects/1).
+#
+# Uses the `TCS_WORKFLOW_TOKEN` secret — org-level for public repos,
+# repo-level for private repos (Chris's plan doesn't allow org secrets
+# to reach private repos).
+#
+# The referenced PAT needs org projects: read/write. Rollout tracked
+# in the ad-hoc auto-add-to-project effort (no ticket — one-shot infra).
+
+name: Add to TCS project
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+permissions:
+  contents: read
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/orgs/The-Canadian-Space/projects/1
+          github-token: ${{ secrets.TCS_WORKFLOW_TOKEN }}
