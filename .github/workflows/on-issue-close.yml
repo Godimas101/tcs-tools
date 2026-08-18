@@ -9,6 +9,7 @@ on:
 # override at the caller.
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   call-append:
